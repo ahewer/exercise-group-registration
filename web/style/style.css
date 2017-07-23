@@ -1,0 +1,98 @@
+body{
+    background: whitesmoke; 
+    font-family: 'Roboto', sans-serif;
+}
+
+div#content{
+    width: 50em;
+    margin: 0 auto;
+    margin-bottom: 5em;
+}
+
+div.warning{
+    border: 0.1em solid tomato;
+    color: snow;
+    padding: 0.5em 1.5em;
+    background: tomato;
+    border-radius: 0.8em;
+    margin-bottom: 1em;
+    box-shadow: 0.2em 0.2em grey;
+}
+
+
+form{
+    width: 50em;
+}
+
+.framed{
+    border: 0.1em solid gainsboro;
+    padding: 0.5em 1.5em;
+    background: gainsboro;
+    border-radius: 0.8em;
+    margin-bottom: 1em;
+    box-shadow: 0.2em 0.2em grey;
+}
+
+legend{
+    border: 0.2em solid gainsboro;
+    padding: 0.5em 0.5em;
+    border-radius: 0.8em;
+    background: white;
+    font-weight: bold;
+}
+
+div.labeled_input{
+    margin-bottom: 0.5em;
+    margin-right: 2em;
+    display: inline-block;
+}
+
+div.labeled_group_input{
+    margin-bottom: 0.5em;
+    margin-right: 2em;
+    display: block;
+}
+
+input {
+    vertical-align: middle;
+    border: 0.1em solid black;
+    border-radius: 0.4em;
+    width: 20em;
+    padding: 0.5em;
+    line-height: 2em;
+    display: block;
+}
+
+select {
+    vertical-align: middle;
+    border-radius: 0.4em;
+    width: 27em;
+    padding: 0.5em;
+    height: 3em;
+}
+
+label {
+    vertical-align: middle;
+    text-align: left;
+    font-weight: bold;
+    line-height: 2em;
+}
+
+label.group {
+    vertical-align: middle;
+    width: 20em;
+    display: inline-block;
+    text-align: left;
+    font-weight: bold;
+    line-height: 2em;
+}
+
+input[type=submit]{
+    font-weight: bold;
+    width: 15em;
+    border: 0.2em solid gainsboro;
+    background: gainsboro;
+    border-radius: 4em;
+    float: right;
+    box-shadow: 0.2em 0.2em grey;
+}

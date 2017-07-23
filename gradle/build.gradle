@@ -1,0 +1,619 @@
+buildscript{
+
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+  }
+
+}
+
+// load sqlite driver
+// https://stackoverflow.com/questions/33901188/sqlite-gradle
+
+repositories {
+  jcenter()
+}
+
+configurations {
+  sqlite
+}
+
+dependencies {
+  sqlite group: 'org.xerial', name: 'sqlite-jdbc', version: '3.19.3'
+}
+
+URLClassLoader loader = GroovyObject.class.classLoader
+configurations.sqlite.each { File file ->
+  loader.addURL(file.toURL())
+}
+
+import org.apache.commons.math3.optim.linear.*
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType
+
+import groovy.sql.*
+
+ext{
+
+  def slurper = new groovy.json.JsonSlurper()
+    configMap = slurper.parse(file("resources/configuration.json"))
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+task extractFromSQL{
+
+  def inputFile = file("resources/database.db")
+    def outputFile = file("$buildDir/registrations.json")
+
+    doLast{
+
+      outputFile.parentFile.mkdirs()
+
+        def db = Sql.newInstance("jdbc:sqlite:$inputFile", "org.sqlite.JDBC");
+
+      def slurper = new groovy.json.JsonSlurper()
+
+        def entries = []
+
+        db.eachRow("select * from Registrations"){
+          def json = it.data
+          def entry = slurper.parseText(json)
+          entries.add(entry)
+        }
+
+      def builder = new groovy.json.JsonBuilder(entries)
+
+        outputFile.withWriter{
+          it << builder.toPrettyString()
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+task anonymize() {
+
+  def inputFile = file("$buildDir/registrations.json")
+    def outputFile = file("$buildDir/anonymous.json")
+
+    inputs.file inputFile
+    outputs.file outputFile
+
+    dependsOn extractFromSQL
+
+    doLast{
+
+      outputFile.parentFile.mkdirs()
+
+        def slurper = new groovy.json.JsonSlurper()
+
+        def registrations = slurper.parse(inputFile)
+
+        def anonymous = []
+
+        registrations.each{
+
+          it.Studentendaten.Vorname = "XXX"
+            it.Studentendaten.Nachname = "XXX"
+            it.Studentendaten.Fach = "null"
+            it.Studentendaten.Fachsemester = 0
+            it.Studentendaten.Studiensemester = 0
+            it.Studentendaten["E-Mail"] = "XXX"
+            it.Studentendaten.Geburtsdatum = "01.01.1970"
+
+            anonymous.add(it)
+        }
+
+      def builder = new groovy.json.JsonBuilder(anonymous)
+
+        outputFile.withWriter{
+
+          it << builder.toPrettyString(anonymous)
+        }
+
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+task findGroupAssignments() {
+
+  def inputFile = file("$buildDir/registrations.json")
+
+    def outputFile = file("$buildDir/groupAssignments.json")
+
+    inputs.file inputFile
+
+    outputs.file outputFile
+
+    dependsOn extractFromSQL
+
+    doLast{
+
+      outputFile.parentFile.mkdirs()
+
+        def slurper = new groovy.json.JsonSlurper()
+
+        def groupDescriptions = configMap["groups"]
+
+        def bestAffinity = configMap["choices"].collect{it.value}.max()
+
+        def registrations = slurper.parse(inputFile)
+        def registrationAmount = registrations.size()
+
+        def groupAmount = 0
+
+        // compute penalizer: - (bestAffinity + 1) * amount of registrants * 1000
+        // make it very unattractive to assign registrants to undesired groups
+        def penalizer = -( bestAffinity + 1) * registrationAmount * 1000
+
+        // construct vector for objective function
+        def objective = []
+
+        registrations.each{ registration ->
+          groupAmount = registration.groupChoices.size()
+            registration.groupChoices.each{
+              if( it == 0 ) {
+                objective << penalizer
+              }
+              else {
+                objective << it
+              }
+            }
+        }
+
+      // set constant in objective function to 0
+      def objectiveFunction = new LinearObjectiveFunction((double[]) objective.toArray(), 0)
+
+        // create constraints
+        def constraints = []
+
+        // create == constraints => each registrant should only be part of exactly
+        // one group
+        (0..registrationAmount - 1).each{ i ->
+
+          def vector = (0..objective.size() - 1).collect{ j ->
+            if(
+                j >= i * groupAmount && 
+                j < (i + 1) * groupAmount ) {
+              1
+            }
+            else {
+              0
+            }
+          } // end collect
+
+          constraints.add(new LinearConstraint((double[]) vector.toArray(), Relationship.EQ, 1))
+
+        }
+
+      // create <= constraints => limit amount of registrants per group
+      (0..groupAmount - 1).each{ i ->
+
+        def vector = (0..objective.size() - 1).collect{ j ->
+          (j % groupAmount == i)? 1 : 0 
+        }
+
+        constraints.add(new LinearConstraint((double[]) vector.toArray(), Relationship.LEQ, groupDescriptions[i].capacity))
+
+      }
+
+      // find group assignment
+      def constraintSet = new LinearConstraintSet(constraints)
+
+        def solver = new SimplexSolver()
+
+        // do not allow negative values => avoid unbounded solution
+        def nonnegative = new NonNegativeConstraint(true)
+        def solution = solver.optimize(objectiveFunction, constraintSet, GoalType.MAXIMIZE, nonnegative).getPoint()
+
+        def output = []
+
+        (0..solution.size() - 1).each{ i ->
+
+          if( solution[i] != 0.0) {
+            int groupIndex = i % groupAmount
+              int registrationIndex = i / groupAmount
+
+              def acceptable = registrations[registrationIndex].groupChoices[groupIndex] != 0
+
+              def id = registrations[registrationIndex].studentData[configMap["studentId"]]
+
+              if( acceptable == true ) {
+                output.add( ["id" : id, "group" : groupDescriptions[groupIndex].id ])
+              }
+              else{
+                output.add( ["id" : id, "group" : null] )
+              }
+
+
+          } // end solution[i]
+
+        } // end solution.size
+
+      def builder = new groovy.json.JsonBuilder(output)
+
+        outputFile.withWriter{
+          it << builder.toPrettyString()
+        }
+
+    } // end doLast
+
+} // end task
+
+///////////////////////////////////////////////////////////////////////////////
+
+task assembleGroups() {
+
+  def inputFile = file("$buildDir/groupAssignments.json")
+    def registrationsFile = file("$buildDir/registrations.json")
+    def outputFile = file("$buildDir/exerciseGroups.json")
+    def overrideFile = file("$buildDir/overrides.json")
+
+    def unassignedFile = file("$buildDir/unassigned.json")
+
+    inputs.file inputFile
+    inputs.file registrationsFile
+    inputs.file overrideFile
+
+    dependsOn findGroupAssignments
+
+    outputs.file outputFile
+
+    if( unassignedFile.exists() ) {
+      unassignedFile.delete()
+    }
+
+  doLast{
+
+    def slurper = new groovy.json.JsonSlurper()
+
+      def registrations = slurper.parse(registrationsFile)
+
+      def groupDescriptions = configMap["groups"]
+      def groupAmount = groupDescriptions.size()
+
+      def assignments = slurper.parse(inputFile)
+
+
+
+      if( overrideFile.exists() ) {
+
+        def overrides = slurper.parse(overrideFile)
+
+          // apply overrides
+          overrides.each{ override ->
+            assignments.find{ it.id == override.id }.group = override.group
+          }
+
+      }
+
+    def groups = (0..groupAmount - 1).collect{ i ->
+      ["meta" : groupDescriptions[i], "members" : [] ]
+    }
+
+    def unassigned = []
+
+      assignments.each{ assignment ->
+
+        def registration = registrations.find{ it.studentData[configMap["studentId"]] == assignment.id }
+
+        if( assignment.group == null ) {
+
+          unassigned.add(registration)
+
+        }
+        else {
+
+          def groupIndex = groupDescriptions.findIndexOf{ it.id == assignment.group }
+          groups[groupIndex].members.add(registration)
+
+        }
+
+      }
+
+    def builder = new groovy.json.JsonBuilder(groups)
+
+      outputFile.withWriter{
+        it << builder.toPrettyString()
+      }
+
+    if( unassigned.isEmpty() == false ) {
+
+      builder = new groovy.json.JsonBuilder(unassigned)
+
+        unassignedFile.withWriter{
+          it << builder.toPrettyString()
+        }
+
+    }
+
+
+  }
+
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+task createMarkdown() {
+
+  dependsOn assembleGroups
+
+    def inputFile = file("$buildDir/exerciseGroups.json")
+    def outputFile = file("$buildDir/groups.md")
+    def unassignedFile = file("$buildDir/unassigned.json")
+
+    inputs.file inputFile
+    outputs.file outputFile
+
+    doLast{
+
+      if(unassignedFile.exists()) {
+        throw new GradleException("Studenten in $unassignedFile konnten nicht zugeordnet werden.")
+      }
+
+      outputFile.parentFile.mkdirs()
+
+        def slurper = new groovy.json.JsonSlurper()
+        def groupAssignments = slurper.parse(inputFile)
+
+        outputFile.withWriter{ output ->
+          groupAssignments.each{
+
+            output << "# ${it.meta.label}"
+
+            if( configMap.groupLabels.isEmpty() == false ) {
+              output << "( " 
+              configMap.groupLabels.eachWithIndex{ value, index ->
+               output << it.meta[value]
+               if( index < configMap.groupLabels.size() - 1 ) {
+                output << ", "
+               }
+              }
+              output << " )" 
+            }
+
+            output << "\n\n"
+
+              it.members.each{ student ->
+                output << " - ${student.studentData[configMap["studentId"]]}"
+                  output << "\n"
+              }
+
+            output << "\n"
+
+          }
+        }
+
+    }
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+task createAnalysisMarkdown() {
+
+  dependsOn assembleGroups
+
+    def inputFile = file("$buildDir/exerciseGroups.json")
+    def outputFile = file("$buildDir/groupsAnalysis.md")
+    def unassignedFile = file("$buildDir/unassigned.json")
+
+    inputs.file inputFile
+    outputs.file outputFile
+
+    doLast{
+
+      outputFile.parentFile.mkdirs()
+
+        def slurper = new groovy.json.JsonSlurper()
+        def groupAssignments = slurper.parse(inputFile)
+
+        def choices = configMap["choices"]
+
+        // counts how often each affinity was achieved
+        def affinities = [:]
+        choices.each{
+          affinities[it.label] = 0
+        }
+
+      outputFile.withWriter{ output ->
+        groupAssignments.indexed().each{ index, group ->
+
+          output << "# ${group.meta.label} "
+
+            if( configMap.groupLabels.isEmpty() == false ) {
+              output << "( " 
+              configMap.groupLabels.eachWithIndex{ value, idx ->
+               output << group.meta[value]
+               if( idx < configMap.groupLabels.size() - 1 ) {
+                output << ", "
+               }
+              }
+              output << " )" 
+            }
+
+            output << "\n\n" 
+
+
+            output << "Auslastung: ${group.members.size()} / ${group.meta.capacity} \n\n"
+
+            output << "Mitglieder: \n\n"
+
+            group.members.each{ student ->
+
+              def affinity = student.groupChoices[index]
+              def affinityName = choices.find{it.value == affinity}.label
+
+                affinities[affinityName]++
+
+                output << "- ${student.studentData[configMap["studentId"]]}\n"
+                output << "    - Name: ${student.studentData.Vorname} ${student.studentData.Nachname}\n"
+                output << "    - Gruppenaffinität: $affinityName\n"
+            }
+          output << "\n"
+        }
+
+        if(unassignedFile.exists()) {
+          output << "# Studenten ohne Gruppe\n\n" 
+
+            def unassigned = slurper.parse(unassignedFiletext)
+
+            output << "Anzahl: ${unassigned.size()}\n\n"
+
+            unassigned.each{ student ->
+
+              def affinity = 0
+                def affinityName = choices.find{it.value == affinity}.label
+
+                affinities[affinityName]++
+
+                output << "- ${student.studentData[configMap["studentId"]]}\n"
+                output << "    - Name: ${student.studentData.Vorname} ${student.studentData.Nachname}\n"
+                output << "    - Gruppenaffinität: $affinityName\n"
+                output << "    - Gruppengewichte:\n"
+                student.Gruppengewichte.each{
+                  output << "        - $it\n"
+                }
+              output << "\n"
+
+            }
+
+        }
+
+        output << "# Statistik\n\n"
+
+          affinities.each{ affinityName, count ->
+            output << "- $affinityName: $count\n"
+          }
+
+      }
+
+    }
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+task createSheetCSV() {
+
+  dependsOn assembleGroups
+
+    def inputFile = file("$buildDir/exerciseGroups.json")
+    def unassignedFile = file("$buildDir/unassigned.json")
+
+
+    inputs.file inputFile
+
+    doLast{
+
+      if(unassignedFile.exists()) {
+        throw new GradleException("Studenten in $unassignedFile konnten nicht zugeordnet werden.")
+      }
+
+      def slurper = new groovy.json.JsonSlurper()
+        def groupAssignments = slurper.parse(inputFile)
+        def sheetAmount = configMap["exerciseSheets"].exerciseSheetAmount
+        def separator = ";"
+
+        def studentData = configMap["exerciseSheets"].studentData
+
+        groupAssignments.each{
+
+          def outputFile = file("$buildDir/${it.meta.label}.csv")
+            outputFile.withWriter{ output ->
+              studentData.each {output << it << separator}
+
+              (1 .. sheetAmount).each{
+                output << ( ( it == 1 )? '' : separator ) << "${configMap["exerciseSheets"]["label"]} $it"
+              }
+              output << "\n"
+                it.members.each{ student ->
+
+                  studentData.each{
+                    def data = student.studentData[it]
+                      output << data << separator
+                  }
+
+                  (1 .. sheetAmount).each{
+                    output << ( ( it == 1 )? '' : separator ) << 0
+                  }
+                  output << "\n"
+                }
+
+
+            }
+        }
+
+
+
+    }
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+task createGradeCSV() {
+
+  dependsOn assembleGroups
+
+    def inputFile = file("$buildDir/exerciseGroups.json")
+    def outputFile = file("$buildDir/gradeSheet.csv")
+    def unassignedFile = file("$buildDir/unassigned.json")
+
+    inputs.file inputFile
+    outputs.file outputFile
+
+    doLast{
+
+      if(unassignedFile.exists()) {
+        throw new GradleException("Studenten in $unassignedFile konnten nicht zugeordnet werden.")
+      }
+
+      def slurper = new groovy.json.JsonSlurper()
+        def groupAssignments = slurper.parse(inputFile)
+        def separator = ";"
+
+        def studentData = configMap["gradeSheet"].studentData
+        def gradeData = configMap["gradeSheet"].gradeData
+
+
+        // create header
+        outputFile.withWriter{ output ->
+          studentData.each {output << it << separator}
+          gradeData.eachWithIndex{ value, index ->
+            output << value
+              if( index < gradeData.size() - 1 ) {
+                output << separator
+              }
+          }
+          output << "\n"
+
+            groupAssignments.each{
+
+              it.members.each{ student ->
+
+                studentData.each{
+                  def data = student.studentData[it]
+                    output << data << separator
+                }
+
+                output << ";\n"
+              }
+
+
+            }
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+task wrapper(type: Wrapper) {
+  gradleVersion = "4.0.1"
+}

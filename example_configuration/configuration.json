@@ -1,0 +1,98 @@
+{
+    "groups" :
+    [
+        {
+            "id" : "Gruppe_1",
+            "location" : "SR 3",
+            "time" : "Montag 12:15 - 13:45",
+            "label": "Gruppe 1",
+            "capacity": 15
+        },
+        {
+            "id" : "Gruppe_2",
+            "location" : "SR 2",
+            "time" : "Montag 12:15 - 13:45",
+            "label": "Gruppe 2",
+            "capacity": 15
+        },
+        {
+            "id" : "Gruppe_3",
+            "location" : "SR 1",
+            "time" : "Montag 14:15 - 15:45",
+            "label": "Gruppe 3",
+            "capacity": 15
+        },
+        {
+            "id" : "Gruppe_4",
+            "location" : "HS 1",
+            "time" : "Montag 10:15 - 11:45",
+            "label": "Gruppe 4",
+            "capacity": 15
+        }
+    ],
+
+    "groupLabels" : ["location", "time"],
+
+    "groupConditions" : [
+        {
+            "type" : "atLeast",
+            "amount" : 2
+        },
+        {
+            "type": "atLeastOne",
+            "of" : ["Gruppe_1", "Gruppe_4"]
+        }
+    ],
+
+    "choices" : 
+    [
+        {
+            "label" : "unmöglich",
+            "value" : 0
+        },
+        {
+            "label" : "passt notfalls",
+            "value" : 1
+        },
+        {
+            "label" : "passt",
+            "value" : 2
+        },
+        {
+            "label" : "passt sehr gut",
+            "value" : 3
+        }
+    ],
+
+    "studentData" : 
+    [
+        { "name": "Vorname", "type": "text" },
+        { "name": "Nachname", "type": "text" },
+        { "name": "Geburtsdatum", "type": "date" },
+        { "name": "E-Mail", "type": "email" },
+        { "name": "Matrikelnummer", "type": "number" },
+        { "name": "Fach", "type": "text" },
+        { "name": "Fachsemester", "type": "number" },
+        { "name": "Studiensemester", "type": "number" }
+    ],
+
+    "studentId" : "Matrikelnummer",
+
+    "exerciseSheets" : {
+        "label" : "Blatt",
+        "exerciseSheetAmount" : 10,
+        "studentData" : [
+            "Vorname", "Nachname", "Matrikelnummer"
+        ]
+    },
+
+    "gradeSheet" : {
+        "studentData" : [
+            "Vorname", "Nachname", "Matrikelnummer", "Geburtsdatum"
+        ],
+        "gradeData" : [
+          "Note", "Bezeichnung"
+        ]
+    }
+
+}
