@@ -288,6 +288,7 @@ Die Beispielkonfiguration legt folgende Einstellungen fest:
 Ein Ausschnitt der erzeugten Tabelle sieht dann wie folgt aus:
 
 | Vorname | Nachname   | Matrikelnummer | Blatt 1 | Blatt 2 |
+|---|---|---|---|---|
 | Max     | Mustermann | 123456         | 0       | 0       |
 
 
