@@ -1,24 +1,33 @@
-- [Einleitung](#org09f5895)
-- [Konfigurationsdateien](#org0f9804f)
-- [Schritt für Schritt Konfiguration](#orge34053b)
-  - [Anlegen von Gruppen](#org2f74ab3)
-  - [Gruppenanzeige](#org3a0144c)
-  - [Auswahleinstellungen](#orgb2d6c0a)
-  - [Registrierungseinschränkungen](#org7159371)
-    - [Mindestanzahl an ausgewählten Gruppen](#org10964f3)
-    - [Festlegen von Gruppen, von denen mindestens eine ausgewählt werden muss](#orgc853bb2)
-  - [Einstellen der Anmeldedaten](#orgf4b604c)
+- [Einleitung](#org0c5ec15)
+- [Konfigurationsdateien](#orgfe44505)
+- [Schritt für Schritt Konfiguration](#orgf4b504c)
+  - [Anlegen von Gruppen](#orgd68eb33)
+  - [Gruppenbeschriftung](#org72ef736)
+  - [Auswahleinstellungen](#orgcaa6ed6)
+  - [Registrierungseinschränkungen](#orgabe2d60)
+    - [Mindestanzahl an ausgewählten Gruppen](#org4a1812c)
+    - [Festlegen von Gruppen, von denen mindestens eine ausgewählt werden muss](#org3e11e4c)
+  - [Einstellen der Anmeldedaten](#org2fc4ff8)
+  - [Konfiguration für Erzeugung der Punktelisten](#org41ab7ec)
+  - [Konfiguration für Notenliste](#orgc8e965f)
+- [Einrichtung der Webseite](#org902b1fc)
+  - [Voraussetzungen](#org505f8ac)
+  - [Einrichtung des Ausgabeverzeichnisses](#orgf5c0099)
+  - [Kopieren der nötigen Dateien](#orga9dfab6)
+- [Gradle](#orgccde8de)
+  - [Voraussetzungen](#org8459f3f)
+  - [Herunterladen der Datenbank](#orgd98f95f)
 
 
 
-<a id="org09f5895"></a>
+<a id="org0c5ec15"></a>
 
 # Einleitung
 
 Das Framework besteht aus zwei Komponenten: Die Webkomponente erlaubt das Erstellen einer Webseite, auf der sich Studenten zum Übungsbetrieb anmelden können. Die Gradle-Komponente benutzt die Registrierungen, um eine Übungsgruppeneinteilung zu erstellen.
 
 
-<a id="org0f9804f"></a>
+<a id="orgfe44505"></a>
 
 # Konfigurationsdateien
 
@@ -42,14 +51,14 @@ Folgende Dateien erlauben die Konfiguration des Frameworks:
 -   `style.css` : Ein CSS Stylesheet, um die Webseite zu formatieren.
 
 
-<a id="orge34053b"></a>
+<a id="orgf4b504c"></a>
 
 # Schritt für Schritt Konfiguration
 
-Dieser Abschnitt beschreibt die Beispielkonfiguration des Frameworks, die sich in \`example\_configuration/configuration.json\` befindet.
+Dieser Abschnitt beschreibt die Beispielkonfiguration des Frameworks, die sich in `example_configuration/configuration.json` befindet.
 
 
-<a id="org2f74ab3"></a>
+<a id="orgd68eb33"></a>
 
 ## Anlegen von Gruppen
 
@@ -109,9 +118,9 @@ Die Beispielkonfiguration enthält 5 Gruppen:
 ```
 
 
-<a id="org3a0144c"></a>
+<a id="org72ef736"></a>
 
-## Gruppenanzeige
+## Gruppenbeschriftung
 
 Hinter dem Gruppenlabel können zusätzliche Informationen angezeigt werden. Dies kann mit `groupLabels` konfiguriert werden:
 
@@ -124,7 +133,7 @@ Diese Konfiguration generiert zum Beispiel für Gruppe 1 die folgende Gruppenbez
     Gruppe 1 ( SR3, Montag 12:15 - 13:45 )
 
 
-<a id="orgb2d6c0a"></a>
+<a id="orgcaa6ed6"></a>
 
 ## Auswahleinstellungen
 
@@ -167,14 +176,14 @@ Die Beispielkonfiguration enthält 4 mögliche Präferenzen:
 ```
 
 
-<a id="org7159371"></a>
+<a id="orgabe2d60"></a>
 
 ## Registrierungseinschränkungen
 
 Es ist möglich, Einschränkungen für die Gruppenanmeldungen festzulegen. Dies kann im \`groupConditions\` Eintrag getan werden, der eine Liste an Bedingungen enthält. Momentan werden zwei Bedingungstypen unterstützt:
 
 
-<a id="org10964f3"></a>
+<a id="org4a1812c"></a>
 
 ### Mindestanzahl an ausgewählten Gruppen
 
@@ -188,7 +197,7 @@ Es ist möglich, Einschränkungen für die Gruppenanmeldungen festzulegen. Dies 
 `"amount"` stellt die Gruppenanzahl dar, die der Student mindestens ausgewählt haben muss.
 
 
-<a id="orgc853bb2"></a>
+<a id="org3e11e4c"></a>
 
 ### Festlegen von Gruppen, von denen mindestens eine ausgewählt werden muss
 
@@ -218,7 +227,7 @@ In der Beispielkonfiguration werden beide Bedingungen genutzt:
 ```
 
 
-<a id="orgf4b604c"></a>
+<a id="org2fc4ff8"></a>
 
 ## Einstellen der Anmeldedaten
 
@@ -246,3 +255,157 @@ Die Beispielkonfiguration legt folgende Daten fest:
     { "name": "Studiensemester", "type": "number" }
 ]
 ```
+
+Eines dieser Eingabedaten muss als eindeutige Identifikation des Studenten in der Datenbank verwendet werden. Dies geschieht im `studentID` Feld der JSON Datei. In unserer Beispielkonfiguration benutzen wir die *Matrikelnummer* als ID:
+
+```js
+"studentId" : "Matrikelnummer"
+```
+
+
+<a id="org41ab7ec"></a>
+
+## Konfiguration für Erzeugung der Punktelisten
+
+Die gradle Komponente kann genutzt werden, um für die einzelnen Übungsgruppen Punktelisten im CSV Format zu erstellen, die später von den Übungsgruppenleitern ausgefüllt werden können. Folgende Informationen können im `exerciseSheets` Eintrag festgelegt werden:
+
+-   `label`: Bezeichnung der Übungsblätter, die durchnummeriert wird
+-   `exerciseSheetAmount`: Anzahl der Übungsblätter
+-   `studentData`: Studentendaten, die in der CSV Datei auftauchen
+
+Die Beispielkonfiguration legt folgende Einstellungen fest:
+
+```js
+"exerciseSheets" : {
+    "label" : "Blatt",
+    "exerciseSheetAmount" : 10,
+    "studentData" : [
+	"Vorname", "Nachname", "Matrikelnummer"
+    ]
+}
+```
+
+Ein Ausschnitt der erzeugten Tabelle sieht dann wie folgt aus:
+
+| Vorname | Nachname   | Matrikelnummer | Blatt 1 | Blatt 2 |
+| Max     | Mustermann | 123456         | 0       | 0       |
+
+
+<a id="orgc8e965f"></a>
+
+## Konfiguration für Notenliste
+
+Ähnlich wie bei den Punktelisten, kann die gradle Komponente auch eine Notenliste im CSV Format generieren. Folgende Einstellungen sind im `gradeSheet` Eintrag möglich:
+
+-   `studentData`: Studentendaten, die in der Tabelle erscheinen sollen
+-   `gradeData`: Noteninformationen, die in die Tabelle eingetragen werden
+
+Die Beispielkonfiguration
+
+```js
+"gradeSheet" : {
+    "studentData" : [
+	"Vorname", "Nachname", "Matrikelnummer", "Geburtsdatum"
+    ],
+    "gradeData" : [
+	"Note", "Bezeichnung"
+    ]
+}
+```
+
+würde eine Tabelle im folgenden Format erzeugen:
+
+| Vorname | Nachname   | Matrikelnummer | Geburtsdatum | Note | Bezeichnung |
+| Max     | Mustermann | 123456         | 01.01.1998   | 1.0  | sehr gut    |
+
+
+<a id="org902b1fc"></a>
+
+# Einrichtung der Webseite
+
+
+<a id="org505f8ac"></a>
+
+## Voraussetzungen
+
+Die Webkomponente hat folgende Voraussetzungen:
+
+-   PHP >= 5.0
+-   SQLite Unterstützung in PHP
+-   Webserver mit .htaccess Unterstützung
+
+
+<a id="orgf5c0099"></a>
+
+## Einrichtung des Ausgabeverzeichnisses
+
+Die Anmeldungen werden in einer SQLite Datenbank im Order `output` gespeichert. Es ist wichtig, dass dieser Ordner geschützt wird, um einen Zugriff auf sensible Daten zu verhindern. Dies kann mit [.htaccess](https://de.wikipedia.org/wiki/.htaccess) erreicht werden. Unter Linux würden wir den Schutz folgendermaßen einrichten:
+
+Zuerst erzeugen wir das Ausgabeverzeichnis
+
+```sh
+mkdir output
+```
+
+Nun legen wir die `.htaccess` Datei an und blockieren jeglichen Zugriff auf den Ordner:
+
+```sh
+cd output
+touch .htaccess
+echo "Require all denied" >> .htaccess
+```
+
+
+<a id="orga9dfab6"></a>
+
+## Kopieren der nötigen Dateien
+
+Nachdem die Konfiguration abgeschlossen ist, werden folgende Dateien auf den Webserver kopiert, wobei die Verzeichnisstruktur erhalten bleiben muss:
+
+```sh
+.
+├── content
+│   ├── config.json
+│   └── description.md
+├── index.php
+├── lib
+│   ├── Builder.inc.php
+│   ├── Database.inc.php
+│   ├── FormBuilder.inc.php
+│   ├── FormBuilderDisplay.inc.php
+│   ├── FormBuilderLocked.inc.php
+│   ├── SQLiteWriter.inc.php
+│   ├── Verifier.inc.php
+│   └── thirdparty
+│       ├── LICENSE.txt
+│       └── Parsedown.php
+├── output
+│   └── .htaccess
+└── style
+    └── style.css
+```
+
+Die Seite ist nun erreichbar und Studenten können sich für die Übungsgruppen anmelden. Die Anmeldungen werden in der Datenbank
+
+```sh
+.
+├── output
+│   └── database.db
+```
+
+gespeichert.
+
+
+<a id="orgccde8de"></a>
+
+# Gradle
+
+
+<a id="org8459f3f"></a>
+
+## Voraussetzungen
+
+
+<a id="orgd98f95f"></a>
+
+## Herunterladen der Datenbank
