@@ -1,12 +1,26 @@
-## Framework zur Übungsgruppeneinteilung
+- [Einleitung](#org09f5895)
+- [Konfigurationsdateien](#org0f9804f)
+- [Schritt für Schritt Konfiguration](#orge34053b)
+  - [Anlegen von Gruppen](#org2f74ab3)
+  - [Gruppenanzeige](#org3a0144c)
+  - [Auswahleinstellungen](#orgb2d6c0a)
+  - [Registrierungseinschränkungen](#org7159371)
+    - [Mindestanzahl an ausgewählten Gruppen](#org10964f3)
+    - [Festlegen von Gruppen, von denen mindestens eine ausgewählt werden muss](#orgc853bb2)
+  - [Einstellen der Anmeldedaten](#orgf4b604c)
 
-### Einleitung
 
-Das Framework besteht aus zwei Komponenten:
-Die Webkomponente erlaubt das Erstellen einer Webseite, auf der sich Studenten zum Übungsbetrieb anmelden können.
-Die Gradle-Komponente benutzt die Registrierungen, um eine Übungsgruppeneinteilung zu erstellen.
 
-### Konfigurationsdateien
+<a id="org09f5895"></a>
+
+# Einleitung
+
+Das Framework besteht aus zwei Komponenten: Die Webkomponente erlaubt das Erstellen einer Webseite, auf der sich Studenten zum Übungsbetrieb anmelden können. Die Gradle-Komponente benutzt die Registrierungen, um eine Übungsgruppeneinteilung zu erstellen.
+
+
+<a id="org0f9804f"></a>
+
+# Konfigurationsdateien
 
 Folgende Dateien erlauben die Konfiguration des Frameworks:
 
@@ -20,23 +34,28 @@ Folgende Dateien erlauben die Konfiguration des Frameworks:
     │   └── description.md
     │   └── configuration.json
     └── style
-        └── style.css
+	└── style.css
 ```
 
-- `configuration.json` : Diese JSON Datei enthält die gesamte Konfiguration des Frameworks.
-- `description.md` : In dieser Markdown Datei können Informationen zu Anmeldung verfasst werden, die auf der Webseite angezeigt werden.
-- `style.css` : Ein CSS Stylesheet, um die Webseite zu formatieren.
+-   `configuration.json` : Diese JSON Datei enthält die gesamte Konfiguration des Frameworks.
+-   `description.md` : In dieser Markdown Datei können Informationen zu Anmeldung verfasst werden, die auf der Webseite angezeigt werden.
+-   `style.css` : Ein CSS Stylesheet, um die Webseite zu formatieren.
 
-### Schritt für Schritt Konfiguration
 
-Dieser Abschnitt beschreibt die Beispielkonfiguration des Frameworks, die sich in `example_configuration/configuration.json` befindet.
+<a id="orge34053b"></a>
 
-#### Anlegen von Gruppen
+# Schritt für Schritt Konfiguration
 
-Das `groups` Eintrag in der JSON Datei enthält eine Liste aller Gruppen.
-Ein Gruppeneintrag enthält die folgenden Informationen:
+Dieser Abschnitt beschreibt die Beispielkonfiguration des Frameworks, die sich in \`example\_configuration/configuration.json\` befindet.
 
-```json
+
+<a id="org2f74ab3"></a>
+
+## Anlegen von Gruppen
+
+Der `groups` Eintrag in der JSON Datei enthält eine Liste aller Gruppen. Ein Gruppeneintrag enthält die folgenden Informationen:
+
+```js
 {
     "id" : "Gruppe_1",
     "location" : "SR 3",
@@ -44,17 +63,18 @@ Ein Gruppeneintrag enthält die folgenden Informationen:
     "label": "Gruppe 1",
     "capacity": 15
 }
+
 ```
 
-- `id` : Eine eindeutige ID für die Gruppe.
-- `location` : Der Ort der Übung.
-- `time` : Termin der Übung.
-- `label` : Gruppenbezeichnung, der auf der Webseite und in den generierten Dateien angezeigt wird.
-- `capacity` : Die Kapazität der Gruppe, wird bei der Optimierung der Gruppeneinteilung verwendet.
+-   `id` : Eine eindeutige ID für die Gruppe.
+-   `location` : Der Ort der Übung.
+-   `time` : Termin der Übung.
+-   `label` : Gruppenbezeichnung, der auf der Webseite und in den generierten Dateien angezeigt wird.
+-   `capacity` : Die Kapazität der Gruppe, wird bei der Optimierung der Gruppeneinteilung verwendet.
 
 Die Beispielkonfiguration enthält 5 Gruppen:
 
-```json
+```js
 "groups" :
 [
     {
@@ -88,39 +108,43 @@ Die Beispielkonfiguration enthält 5 Gruppen:
 ]
 ```
 
-#### Gruppenanzeige
 
-Hinter dem Gruppenlabel können zusätzliche Informationen angezeigt werden.
-Dies kann mit `groupLabels` konfiguriert werden:
+<a id="org3a0144c"></a>
 
-```json
-    "groupLabels" : ["location", "time"]
+## Gruppenanzeige
+
+Hinter dem Gruppenlabel können zusätzliche Informationen angezeigt werden. Dies kann mit `groupLabels` konfiguriert werden:
+
+```js
+"groupLabels" : ["location", "time"]
 ```
 
-Diese Konfiguration generiert zum Beispiel für Gruppe 1 die folgende Gruppenbezeichnung auf der Webseite: `Gruppe 1 ( SR3, Montag 12:15 - 13:45 )`.
+Diese Konfiguration generiert zum Beispiel für Gruppe 1 die folgende Gruppenbezeichnung auf der Webseite:
 
-#### Auswahleinstellungen
+    Gruppe 1 ( SR3, Montag 12:15 - 13:45 )
 
-Bei der Anmeldung zu den Gruppen müssen Studenten ihre Präferenzen angeben.
-Mögliche Präferenzen werden als Liste im `choices` Eintrag festgelegt.
-Eine Präferenzdefinition besteht aus zwei Teilen:
 
-```json
+<a id="orgb2d6c0a"></a>
+
+## Auswahleinstellungen
+
+Bei der Anmeldung zu den Gruppen müssen Studenten ihre Präferenzen angeben. Mögliche Präferenzen werden als Liste im `choices` Eintrag festgelegt. Eine Präferenzdefinition besteht aus zwei Teilen:
+
+```js
 {
     "label" : "unmöglich",
     "value" : 0
 }
 ```
 
-- `label` : Die angezeigte Bezeichnung für die Präferenz während der Anmeldung.
-- `value` : Der interne Wert, der bei der Optimierung benutzt wird.
+-   `label` : Die angezeigte Bezeichnung für die Präferenz während der Anmeldung.
+-   `value` : Der interne Wert, der bei der Optimierung benutzt wird.
 
-Der Wert 0 bedeutet, dass eine Teilnahme nicht möglich ist.
-Höhere Werte bedeuten eine höhere Präferenz.
+Der Wert 0 bedeutet, dass eine Teilnahme nicht möglich ist. Höhere Werte bedeuten eine höhere Präferenz.
 
 Die Beispielkonfiguration enthält 4 mögliche Präferenzen:
 
-```json
+```js
 "choices" :
 [
     {
@@ -142,15 +166,19 @@ Die Beispielkonfiguration enthält 4 mögliche Präferenzen:
 ]
 ```
 
-#### Registrierungseinschränkungen
 
-Es ist möglich, Einschränkungen für die Gruppenanmeldungen festzulegen.
-Dies kann im `groupConditions` Eintrag getan werden, der eine Liste an Bedingungen enthält.
-Momentan werden zwei Bedingungstypen unterstützt:
+<a id="org7159371"></a>
 
-##### Mindestanzahl an möglichen Gruppen
+## Registrierungseinschränkungen
 
-```json
+Es ist möglich, Einschränkungen für die Gruppenanmeldungen festzulegen. Dies kann im \`groupConditions\` Eintrag getan werden, der eine Liste an Bedingungen enthält. Momentan werden zwei Bedingungstypen unterstützt:
+
+
+<a id="org10964f3"></a>
+
+### Mindestanzahl an ausgewählten Gruppen
+
+```js
 {
     "type" : "atLeast",
     "amount" : 2
@@ -159,20 +187,23 @@ Momentan werden zwei Bedingungstypen unterstützt:
 
 `"amount"` stellt die Gruppenanzahl dar, die der Student mindestens ausgewählt haben muss.
 
-##### Auswahl bestimmter Gruppen
 
-```json
+<a id="orgc853bb2"></a>
+
+### Festlegen von Gruppen, von denen mindestens eine ausgewählt werden muss
+
+```js
 {
     "type": "atLeastOne",
     "of" : ["Gruppe_1", "Gruppe_4"]
 }
 ```
 
-`of` enthält eine Liste von Labels, die zu Gruppen gehören, zu denen der Student sich anmelden muss.
+`` `of` `` enthält eine Liste von Labels, die zu Gruppen gehören, von denen der Student mindestens eine auswählen muss.
 
 In der Beispielkonfiguration werden beide Bedingungen genutzt:
 
-```json
+```js
 "groupConditions" :
 [
     {
@@ -183,5 +214,35 @@ In der Beispielkonfiguration werden beide Bedingungen genutzt:
 	"type": "atLeastOne",
 	"of" : ["Gruppe_1", "Gruppe_4"]
     }
+]
+```
+
+
+<a id="orgf4b604c"></a>
+
+## Einstellen der Anmeldedaten
+
+Persönliche Daten, die der Student angeben muss, werden als Liste im `studentData` Feld festgelegt. Ein Eintrag in dieser Liste hat folgende Form:
+
+```js
+{ "name": "Vorname", "type": "text" }
+```
+
+-   `name` : Bezeichnung für den Eintrag.
+-   `type` : Der HTML-Eingabetyp, der verwendet werden soll.
+
+Die Beispielkonfiguration legt folgende Daten fest:
+
+```js
+"studentData" :
+[
+    { "name": "Vorname", "type": "text" },
+    { "name": "Nachname", "type": "text" },
+    { "name": "Geburtsdatum", "type": "date" },
+    { "name": "E-Mail", "type": "email" },
+    { "name": "Matrikelnummer", "type": "number" },
+    { "name": "Fach", "type": "text" },
+    { "name": "Fachsemester", "type": "number" },
+    { "name": "Studiensemester", "type": "number" }
 ]
 ```
