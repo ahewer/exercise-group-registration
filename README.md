@@ -317,6 +317,7 @@ Die Beispielkonfiguration
 würde eine Tabelle im folgenden Format erzeugen:
 
 | Vorname | Nachname   | Matrikelnummer | Geburtsdatum | Note | Bezeichnung |
+|---|---|---|---|---|---|
 | Max     | Mustermann | 123456         | 01.01.1998   | 1.0  | sehr gut    |
 
 
@@ -340,22 +341,9 @@ Die Webkomponente hat folgende Voraussetzungen:
 
 ## Einrichtung des Ausgabeverzeichnisses
 
-Die Anmeldungen werden in einer SQLite Datenbank im Order `output` gespeichert. Es ist wichtig, dass dieser Ordner geschützt wird, um einen Zugriff auf sensible Daten zu verhindern. Dies kann mit [.htaccess](https://de.wikipedia.org/wiki/.htaccess) erreicht werden. Unter Linux würden wir den Schutz folgendermaßen einrichten:
-
-Zuerst erzeugen wir das Ausgabeverzeichnis
-
-```sh
-mkdir output
-```
-
-Nun legen wir die `.htaccess` Datei an und blockieren jeglichen Zugriff auf den Ordner:
-
-```sh
-cd output
-touch .htaccess
-echo "Require all denied" >> .htaccess
-```
-
+Die Anmeldungen werden in einer SQLite Datenbank im Order `output` gespeichert. Es ist wichtig, dass dieser Ordner geschützt wird, um einen Zugriff auf sensible Daten zu verhindern. Dies kann mit [.htaccess](https://de.wikipedia.org/wiki/.htaccess) erreicht werden. 
+Bei Aufrufen der Website wird immer überprüft, ob der Ordner `output` existiert und wird bei Bedarf angelegt.
+Fernerhin wird eine `.htaccess` Datei generiert, die jeglichen Zugriff auf den Ordner blockiert.
 
 <a id="orga9dfab6"></a>
 
@@ -380,8 +368,6 @@ Nachdem die Konfiguration abgeschlossen ist, werden folgende Dateien auf den Web
 │   └── thirdparty
 │       ├── LICENSE.txt
 │       └── Parsedown.php
-├── output
-│   └── .htaccess
 └── style
     └── style.css
 ```
