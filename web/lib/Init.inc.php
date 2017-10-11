@@ -27,7 +27,9 @@ class Init{
 
     public static function create_database_file() {
 
-        touch("./output/database.db");
+        $databaseFile = "./output/database.db";
+        touch($databaseFile);
+        chmod($databaseFile, 0777);
 
     }
 
