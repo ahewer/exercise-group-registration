@@ -1,35 +1,35 @@
-- [Einleitung](#org0c5ec15)
-- [Konfigurationsdateien](#orgfe44505)
-- [Schritt für Schritt Konfiguration](#orgf4b504c)
-  - [Anlegen von Gruppen](#orgd68eb33)
-  - [Gruppenbeschriftung](#org72ef736)
-  - [Auswahleinstellungen](#orgcaa6ed6)
-  - [Registrierungseinschränkungen](#orgabe2d60)
-    - [Mindestanzahl an ausgewählten Gruppen](#org4a1812c)
-    - [Festlegen von Gruppen, von denen mindestens eine ausgewählt werden muss](#org3e11e4c)
-  - [Einstellen der Anmeldedaten](#org2fc4ff8)
-  - [Konfiguration für Erzeugung der Punktelisten](#org41ab7ec)
-  - [Konfiguration für Notenliste](#orgc8e965f)
-- [Einrichtung der Webseite](#org902b1fc)
-  - [Voraussetzungen](#org505f8ac)
-  - [Einrichtung des Ausgabeverzeichnisses](#orgf5c0099)
-  - [Kopieren der nötigen Dateien](#orga9dfab6)
-- [Gradle](#orgccde8de)
-  - [Voraussetzungen](#org8459f3f)
-  - [Herunterladen der Datenbank](#orgd98f95f)
+- [Einleitung](#sec-1)
+- [Konfigurationsdateien](#sec-2)
+- [Schritt für Schritt Konfiguration](#sec-3)
+  - [Anlegen von Gruppen](#sec-3-1)
+  - [Gruppenbeschriftung](#sec-3-2)
+  - [Auswahleinstellungen](#sec-3-3)
+  - [Registrierungseinschränkungen](#sec-3-4)
+    - [Mindestanzahl an ausgewählten Gruppen](#sec-3-4-1)
+    - [Festlegen von Gruppen, von denen mindestens eine ausgewählt werden muss](#sec-3-4-2)
+  - [Einstellen der Anmeldedaten](#sec-3-5)
+  - [Konfiguration für Erzeugung der Punktelisten](#sec-3-6)
+  - [Konfiguration für Notenliste](#sec-3-7)
+- [Einrichtung der Webseite](#sec-4)
+  - [Voraussetzungen](#sec-4-1)
+  - [Einrichtung des Ausgabeverzeichnisses](#sec-4-2)
+  - [Kopieren der nötigen Dateien](#sec-4-3)
+- [Gradle](#sec-5)
+  - [Voraussetzungen](#sec-5-1)
+  - [Vorbereitungen](#sec-5-2)
+  - [Erzeugung der Ergebnisse](#sec-5-3)
+    - [Punktelisten](#sec-5-3-1)
+    - [Notenliste](#sec-5-3-2)
+    - [Gruppeneinteilungen](#sec-5-3-3)
+  - [Analyse der Ergebnisse](#sec-5-4)
+  - [Manuelle Anpassung der Gruppeneinteilung](#sec-5-5)
 
 
-
-<a id="org0c5ec15"></a>
-
-# Einleitung
+# Einleitung<a id="sec-1"></a>
 
 Das Framework besteht aus zwei Komponenten: Die Webkomponente erlaubt das Erstellen einer Webseite, auf der sich Studenten zum Übungsbetrieb anmelden können. Die Gradle-Komponente benutzt die Registrierungen, um eine Übungsgruppeneinteilung zu erstellen.
 
-
-<a id="orgfe44505"></a>
-
-# Konfigurationsdateien
+# Konfigurationsdateien<a id="sec-2"></a>
 
 Folgende Dateien erlauben die Konfiguration des Frameworks:
 
@@ -43,24 +43,18 @@ Folgende Dateien erlauben die Konfiguration des Frameworks:
     │   └── description.md
     │   └── configuration.json
     └── style
-	└── style.css
+        └── style.css
 ```
 
 -   `configuration.json` : Diese JSON Datei enthält die gesamte Konfiguration des Frameworks.
 -   `description.md` : In dieser Markdown Datei können Informationen zu Anmeldung verfasst werden, die auf der Webseite angezeigt werden.
 -   `style.css` : Ein CSS Stylesheet, um die Webseite zu formatieren.
 
-
-<a id="orgf4b504c"></a>
-
-# Schritt für Schritt Konfiguration
+# Schritt für Schritt Konfiguration<a id="sec-3"></a>
 
 Dieser Abschnitt beschreibt die Beispielkonfiguration des Frameworks, die sich in `example_configuration/configuration.json` befindet.
 
-
-<a id="orgd68eb33"></a>
-
-## Anlegen von Gruppen
+## Anlegen von Gruppen<a id="sec-3-1"></a>
 
 Der `groups` Eintrag in der JSON Datei enthält eine Liste aller Gruppen. Ein Gruppeneintrag enthält die folgenden Informationen:
 
@@ -87,40 +81,37 @@ Die Beispielkonfiguration enthält 5 Gruppen:
 "groups" :
 [
     {
-	"id" : "Gruppe_1",
-	"location" : "SR 3",
-	"time" : "Montag 12:15 - 13:45",
-	"label": "Gruppe 1",
-	"capacity": 15
+  "id" : "Gruppe_1",
+  "location" : "SR 3",
+  "time" : "Montag 12:15 - 13:45",
+  "label": "Gruppe 1",
+  "capacity": 15
     },
     {
-	"id" : "Gruppe_2",
-	"location" : "SR 2",
-	"time" : "Montag 12:15 - 13:45",
-	"label": "Gruppe 2",
-	"capacity": 15
+  "id" : "Gruppe_2",
+  "location" : "SR 2",
+  "time" : "Montag 12:15 - 13:45",
+  "label": "Gruppe 2",
+  "capacity": 15
     },
     {
-	"id" : "Gruppe_3",
-	"location" : "SR 1",
-	"time" : "Montag 14:15 - 15:45",
-	"label": "Gruppe 3",
-	"capacity": 15
+  "id" : "Gruppe_3",
+  "location" : "SR 1",
+  "time" : "Montag 14:15 - 15:45",
+  "label": "Gruppe 3",
+  "capacity": 15
     },
     {
-	"id" : "Gruppe_4",
-	"location" : "HS 1",
-	"time" : "Montag 10:15 - 11:45",
-	"label": "Gruppe 4",
-	"capacity": 15
+  "id" : "Gruppe_4",
+  "location" : "HS 1",
+  "time" : "Montag 10:15 - 11:45",
+  "label": "Gruppe 4",
+  "capacity": 15
     }
 ]
 ```
 
-
-<a id="org72ef736"></a>
-
-## Gruppenbeschriftung
+## Gruppenbeschriftung<a id="sec-3-2"></a>
 
 Hinter dem Gruppenlabel können zusätzliche Informationen angezeigt werden. Dies kann mit `groupLabels` konfiguriert werden:
 
@@ -132,10 +123,7 @@ Diese Konfiguration generiert zum Beispiel für Gruppe 1 die folgende Gruppenbez
 
     Gruppe 1 ( SR3, Montag 12:15 - 13:45 )
 
-
-<a id="orgcaa6ed6"></a>
-
-## Auswahleinstellungen
+## Auswahleinstellungen<a id="sec-3-3"></a>
 
 Bei der Anmeldung zu den Gruppen müssen Studenten ihre Präferenzen angeben. Mögliche Präferenzen werden als Liste im `choices` Eintrag festgelegt. Eine Präferenzdefinition besteht aus zwei Teilen:
 
@@ -157,35 +145,29 @@ Die Beispielkonfiguration enthält 4 mögliche Präferenzen:
 "choices" :
 [
     {
-	"label" : "unmöglich",
-	"value" : 0
+  "label" : "unmöglich",
+  "value" : 0
     },
     {
-	"label" : "passt notfalls",
-	"value" : 1
+  "label" : "passt notfalls",
+  "value" : 1
     },
     {
-	"label" : "passt",
-	"value" : 2
+  "label" : "passt",
+  "value" : 2
     },
     {
-	"label" : "passt sehr gut",
-	"value" : 3
+  "label" : "passt sehr gut",
+  "value" : 3
     }
 ]
 ```
 
-
-<a id="orgabe2d60"></a>
-
-## Registrierungseinschränkungen
+## Registrierungseinschränkungen<a id="sec-3-4"></a>
 
 Es ist möglich, Einschränkungen für die Gruppenanmeldungen festzulegen. Dies kann im \`groupConditions\` Eintrag getan werden, der eine Liste an Bedingungen enthält. Momentan werden zwei Bedingungstypen unterstützt:
 
-
-<a id="org4a1812c"></a>
-
-### Mindestanzahl an ausgewählten Gruppen
+### Mindestanzahl an ausgewählten Gruppen<a id="sec-3-4-1"></a>
 
 ```js
 {
@@ -196,10 +178,7 @@ Es ist möglich, Einschränkungen für die Gruppenanmeldungen festzulegen. Dies 
 
 `"amount"` stellt die Gruppenanzahl dar, die der Student mindestens ausgewählt haben muss.
 
-
-<a id="org3e11e4c"></a>
-
-### Festlegen von Gruppen, von denen mindestens eine ausgewählt werden muss
+### Festlegen von Gruppen, von denen mindestens eine ausgewählt werden muss<a id="sec-3-4-2"></a>
 
 ```js
 {
@@ -216,20 +195,17 @@ In der Beispielkonfiguration werden beide Bedingungen genutzt:
 "groupConditions" :
 [
     {
-	"type" : "atLeast",
-	"amount" : 2
+  "type" : "atLeast",
+  "amount" : 2
     },
     {
-	"type": "atLeastOne",
-	"of" : ["Gruppe_1", "Gruppe_4"]
+  "type": "atLeastOne",
+  "of" : ["Gruppe_1", "Gruppe_4"]
     }
 ]
 ```
 
-
-<a id="org2fc4ff8"></a>
-
-## Einstellen der Anmeldedaten
+## Einstellen der Anmeldedaten<a id="sec-3-5"></a>
 
 Persönliche Daten, die der Student angeben muss, werden als Liste im `studentData` Feld festgelegt. Ein Eintrag in dieser Liste hat folgende Form:
 
@@ -262,10 +238,7 @@ Eines dieser Eingabedaten muss als eindeutige Identifikation des Studenten in de
 "studentId" : "Matrikelnummer"
 ```
 
-
-<a id="org41ab7ec"></a>
-
-## Konfiguration für Erzeugung der Punktelisten
+## Konfiguration für Erzeugung der Punktelisten<a id="sec-3-6"></a>
 
 Die gradle Komponente kann genutzt werden, um für die einzelnen Übungsgruppen Punktelisten im CSV Format zu erstellen, die später von den Übungsgruppenleitern ausgefüllt werden können. Folgende Informationen können im `exerciseSheets` Eintrag festgelegt werden:
 
@@ -280,7 +253,7 @@ Die Beispielkonfiguration legt folgende Einstellungen fest:
     "label" : "Blatt",
     "exerciseSheetAmount" : 10,
     "studentData" : [
-	"Vorname", "Nachname", "Matrikelnummer"
+        "Vorname", "Nachname", "Matrikelnummer"
     ]
 }
 ```
@@ -288,13 +261,9 @@ Die Beispielkonfiguration legt folgende Einstellungen fest:
 Ein Ausschnitt der erzeugten Tabelle sieht dann wie folgt aus:
 
 | Vorname | Nachname   | Matrikelnummer | Blatt 1 | Blatt 2 |
-|---|---|---|---|---|
 | Max     | Mustermann | 123456         | 0       | 0       |
 
-
-<a id="orgc8e965f"></a>
-
-## Konfiguration für Notenliste
+## Konfiguration für Notenliste<a id="sec-3-7"></a>
 
 Ähnlich wie bei den Punktelisten, kann die gradle Komponente auch eine Notenliste im CSV Format generieren. Folgende Einstellungen sind im `gradeSheet` Eintrag möglich:
 
@@ -306,10 +275,10 @@ Die Beispielkonfiguration
 ```js
 "gradeSheet" : {
     "studentData" : [
-	"Vorname", "Nachname", "Matrikelnummer", "Geburtsdatum"
+        "Vorname", "Nachname", "Matrikelnummer", "Geburtsdatum"
     ],
     "gradeData" : [
-	"Note", "Bezeichnung"
+        "Note", "Bezeichnung"
     ]
 }
 ```
@@ -317,18 +286,11 @@ Die Beispielkonfiguration
 würde eine Tabelle im folgenden Format erzeugen:
 
 | Vorname | Nachname   | Matrikelnummer | Geburtsdatum | Note | Bezeichnung |
-|---|---|---|---|---|---|
 | Max     | Mustermann | 123456         | 01.01.1998   | 1.0  | sehr gut    |
 
+# Einrichtung der Webseite<a id="sec-4"></a>
 
-<a id="org902b1fc"></a>
-
-# Einrichtung der Webseite
-
-
-<a id="org505f8ac"></a>
-
-## Voraussetzungen
+## Voraussetzungen<a id="sec-4-1"></a>
 
 Die Webkomponente hat folgende Voraussetzungen:
 
@@ -336,18 +298,33 @@ Die Webkomponente hat folgende Voraussetzungen:
 -   SQLite Unterstützung in PHP
 -   Webserver mit .htaccess Unterstützung
 
+## Einrichtung des Ausgabeverzeichnisses<a id="sec-4-2"></a>
 
-<a id="orgf5c0099"></a>
+Die Anmeldungen werden in einer SQLite Datenbank im Order `output` gespeichert. Es ist wichtig, dass dieser Ordner geschützt wird, um einen Zugriff auf sensible Daten zu verhindern. Dies kann mit [.htaccess](https://de.wikipedia.org/wiki/.htaccess) erreicht werden. Unter Linux würden wir den Schutz folgendermaßen einrichten:
 
-## Einrichtung des Ausgabeverzeichnisses
+Zuerst erzeugen wir das Ausgabeverzeichnis
 
-Die Anmeldungen werden in einer SQLite Datenbank im Order `output` gespeichert. Es ist wichtig, dass dieser Ordner geschützt wird, um einen Zugriff auf sensible Daten zu verhindern. Dies kann mit [.htaccess](https://de.wikipedia.org/wiki/.htaccess) erreicht werden. 
-Bei Aufrufen der Website wird immer überprüft, ob der Ordner `output` existiert und wird bei Bedarf angelegt.
-Fernerhin wird eine `.htaccess` Datei generiert, die jeglichen Zugriff auf den Ordner blockiert.
+```sh
+mkdir output
+```
 
-<a id="orga9dfab6"></a>
+Nun legen wir die `.htaccess` Datei an und blockieren jeglichen Zugriff auf den Ordner:
 
-## Kopieren der nötigen Dateien
+```sh
+cd output
+touch .htaccess
+echo "Require all denied" >> .htaccess
+```
+
+Die erzeugte `.htaccess` hat somit den folgenden Inhalt:
+
+```sh
+Require all denied
+```
+
+Bei Aufrufen der Website wird immer überprüft, ob der Ordner `output` existiert und wird bei Bedarf angelegt. Fernerhin wird dann auch eine `.htaccess` Datei generiert, die wie oben jeglichen Zugriff auf den Ordner blockiert.
+
+## Kopieren der nötigen Dateien<a id="sec-4-3"></a>
 
 Nachdem die Konfiguration abgeschlossen ist, werden folgende Dateien auf den Webserver kopiert, wobei die Verzeichnisstruktur erhalten bleiben muss:
 
@@ -376,23 +353,121 @@ Die Seite ist nun erreichbar und Studenten können sich für die Übungsgruppen 
 
 ```sh
 .
-├── output
-│   └── database.db
+└── output
+    └── database.db
 ```
 
 gespeichert.
 
+# Gradle<a id="sec-5"></a>
 
-<a id="orgccde8de"></a>
+## Voraussetzungen<a id="sec-5-1"></a>
 
-# Gradle
+-   Java Version >=7
 
+## Vorbereitungen<a id="sec-5-2"></a>
 
-<a id="org8459f3f"></a>
+Um das Gradle Framework nutzen zu können, führen wir folgende Schritte durch: Wir laden zunächst die Datei `database.db` von unserem Webserver herunter und platzieren sie in:
 
-## Voraussetzungen
+```sh
+.
+└── gradle
+    └── resources
+```
 
+Danach speichern wir dort auch die Konfigurationsdatei `configuration.json` ab.
 
-<a id="orgd98f95f"></a>
+## Erzeugung der Ergebnisse<a id="sec-5-3"></a>
 
-## Herunterladen der Datenbank
+Mit Hilfe des Befehls
+
+```sh
+./gradlew build
+```
+
+unter Linux oder
+
+```sh
+gradlew.bat build
+```
+
+unter Windows werden die Ergebnisdateien erstellt:
+
+### Punktelisten<a id="sec-5-3-1"></a>
+
+Punktelisten im CSV Format, die von den einzelnen Übungsgruppenleitern ausgefüllt werden können, befinden sich im Ordner:
+
+```sh
+.
+└── gradle
+    └── build
+        └── pointLists
+```
+
+### Notenliste<a id="sec-5-3-2"></a>
+
+Eine CSV Datei, die als Notenliste später dienen kann, wird hier abgespeichert:
+
+```sh
+.
+└── gradle
+    └── build
+        └── gradeList
+            └── gradeSheet.csv
+```
+
+### Gruppeneinteilungen<a id="sec-5-3-3"></a>
+
+Eine Markdown Datei, die die gesamte Gruppeneinteilungen beinhaltet, befindet sich in der Datei
+
+```sh
+.
+└── gradle
+    └── build
+        └── groupsMarkdown
+            └── groups.md
+```
+
+Diese Markdown Datei kann zum Beispiel mit Hilfe des Tools [pandoc](https://www.pandoc.org) in andere Formate, wie PDF oder HTML umgewandelt werden.
+
+## Analyse der Ergebnisse<a id="sec-5-4"></a>
+
+Der Aufruf
+
+```sh
+./gradlew createAnalysisMarkdown
+```
+
+erstellt die Markdown Datei
+
+```sh
+.
+└── gradle
+    └── build
+        └── analysis
+            └── markdown.md
+```
+
+die zahlreiche Informationen zur Einteilung enthält, wie zum Beispiel die Auslastung der einzelnen Gruppen oder Studenten, die keiner Gruppe zugeordnet werden konnten.
+
+## Manuelle Anpassung der Gruppeneinteilung<a id="sec-5-5"></a>
+
+In bestimmten Fällen ist es nötig, dass die Gruppeneinteilung für manche Studenten manuell angepasst werden muss. Diese manuelle Zuteilung kann in der Datei
+
+```sh
+.
+└── gradle
+    └── build
+        └── overrides.json
+```
+
+festgelegt werden. Diese JSON Datei enthält eine Liste von Einträgen:
+
+```json
+[
+    { "id" : 123456, "group" : "Gruppe_1" },
+    { "id" : 223456, "group" : "Gruppe_2" }
+]
+```
+
+`id` ist die ID des Studenten, dessen Gruppe angepasst werden soll. `group` ist die ID der Gruppe, die dem Studenten zugeordnet werden soll.
