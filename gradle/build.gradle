@@ -344,7 +344,7 @@ task createMarkdown() {
     dependsOn assembleGroups
 
     def inputFile = file("$buildDir/exerciseGroups.json")
-    def outputFile = file("$buildDir/groups.md")
+    def outputFile = file("$buildDir/groupsMarkdown/groups.md")
     def unassignedFile = file("$buildDir/unassigned.json")
 
     inputs.file inputFile
@@ -400,7 +400,7 @@ task createAnalysisMarkdown() {
     dependsOn assembleGroups
 
     def inputFile = file("$buildDir/exerciseGroups.json")
-    def outputFile = file("$buildDir/groupsAnalysis.md")
+    def outputFile = file("$buildDir/analysis/markdown.md")
     def unassignedFile = file("$buildDir/unassigned.json")
 
     inputs.file inputFile
@@ -504,12 +504,16 @@ task createSheetCSV() {
     dependsOn assembleGroups
 
     def inputFile = file("$buildDir/exerciseGroups.json")
+    def outputDir = file("$buildDir/pointLists")
     def unassignedFile = file("$buildDir/unassigned.json")
 
 
     inputs.file inputFile
+    outputs.dir outputDir
 
     doLast{
+
+        outputDir.mkdirs()
 
         if(unassignedFile.exists()) {
             throw new GradleException("Studenten in $unassignedFile konnten nicht zugeordnet werden.")
@@ -524,7 +528,8 @@ task createSheetCSV() {
 
 	      groupAssignments.each{
 
-	          def outputFile = file("$buildDir/${it.meta.label}.csv")
+	          def outputFile = file("$outputDir/${it.meta.label}.csv")
+
 	          outputFile.withWriter{ output ->
 		            studentData.each {output << it << separator}
 
@@ -562,7 +567,7 @@ task createGradeCSV() {
     dependsOn assembleGroups
 
     def inputFile = file("$buildDir/exerciseGroups.json")
-    def outputFile = file("$buildDir/gradeSheet.csv")
+    def outputFile = file("$buildDir/gradeList/gradeSheet.csv")
     def unassignedFile = file("$buildDir/unassigned.json")
 
     inputs.file inputFile
@@ -612,6 +617,14 @@ task createGradeCSV() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+task build() {
+
+    dependsOn createMarkdown
+    dependsOn createSheetCSV
+    dependsOn createGradeCSV
+
+}
 
 task wrapper(type: Wrapper) {
 
