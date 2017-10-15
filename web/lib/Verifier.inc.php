@@ -18,6 +18,10 @@ class Verifier{
 
         foreach($studentData as $value) {
 
+            if($value["type"] == 'select') {
+                continue;
+            }
+
             if( isset( $_POST[$value["name"]]) == false || $_POST[$value["name"]] == "") {
                 return false;
             }

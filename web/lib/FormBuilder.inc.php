@@ -41,7 +41,24 @@ END;
       <div class="labeled_input">
       <label for="$name">$name:</label>
 END;
-            echo $this->build_student_input($name, $type);
+
+            if( $type == 'select') {
+                $options = $value['options'];
+                echo "<select name=\"$name\" id=\"$name\" style=\"display: block; width: 20em;\">";
+
+                foreach($options as $option) {
+                    if($option['value'] == 0){
+                        echo "<option value=\"${option['value']}\" selected>${option['label']}</option>";
+                    }
+                    else{
+                        echo "<option value=\"${option['value']}\">${option['label']}</option>";
+                    }
+                }
+                echo "</select>";
+            }
+            else{
+                echo $this->build_student_input($name, $type);
+            }
             echo "</div>";
         }
         echo "<hr/>";

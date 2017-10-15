@@ -73,7 +73,21 @@
         { "name": "Matrikelnummer", "type": "number" },
         { "name": "Fach", "type": "text" },
         { "name": "Fachsemester", "type": "number" },
-        { "name": "Studiensemester", "type": "number" }
+        { "name": "Studiensemester", "type": "number" },
+        {
+            "name": "Bachelor-PLUS-MINT",
+            "type": "select",
+            "options": [
+                    {
+                        "label": "Nein",
+                        "value": 0
+                    },
+                    {
+                        "label": "Ja",
+                        "value": 1
+                    }
+                ]
+        }
     ],
 
     "studentId" : "Matrikelnummer",
@@ -88,7 +102,7 @@
 
     "gradeSheet" : {
         "studentData" : [
-            "Vorname", "Nachname", "Matrikelnummer", "Geburtsdatum"
+            "Vorname", "Nachname", "Matrikelnummer", "Geburtsdatum", "Bachelor-PLUS-MINT"
         ],
         "gradeData" : [
           "Note", "Bezeichnung"

@@ -47,7 +47,11 @@ class SQLiteWriter{
             }
 
             if( $field["type"] == "number" ) {
-              $value = intval($value);
+                $value = intval($value);
+            }
+            
+            if( $field["type"] == "select") {
+                $value = intval($value); 
             }
 
             $studentData[$key] = $value;
