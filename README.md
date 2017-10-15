@@ -261,6 +261,7 @@ Die Beispielkonfiguration legt folgende Einstellungen fest:
 Ein Ausschnitt der erzeugten Tabelle sieht dann wie folgt aus:
 
 | Vorname | Nachname   | Matrikelnummer | Blatt 1 | Blatt 2 |
+|---------|------------|----------------|---------|---------|
 | Max     | Mustermann | 123456         | 0       | 0       |
 
 ## Konfiguration für Notenliste<a id="sec-3-7"></a>
@@ -286,6 +287,7 @@ Die Beispielkonfiguration
 würde eine Tabelle im folgenden Format erzeugen:
 
 | Vorname | Nachname   | Matrikelnummer | Geburtsdatum | Note | Bezeichnung |
+|---------|------------|----------------|--------------|------|-------------|
 | Max     | Mustermann | 123456         | 01.01.1998   | 1.0  | sehr gut    |
 
 # Einrichtung der Webseite<a id="sec-4"></a>
