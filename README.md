@@ -58,7 +58,7 @@ Dieser Abschnitt beschreibt die Beispielkonfiguration des Frameworks, die sich i
 
 Der `groups` Eintrag in der JSON Datei enthält eine Liste aller Gruppen. Ein Gruppeneintrag enthält die folgenden Informationen:
 
-```js
+```json
 {
     "id" : "Gruppe_1",
     "location" : "SR 3",
@@ -77,36 +77,36 @@ Der `groups` Eintrag in der JSON Datei enthält eine Liste aller Gruppen. Ein Gr
 
 Die Beispielkonfiguration enthält 5 Gruppen:
 
-```js
+```json
 "groups" :
 [
     {
-  "id" : "Gruppe_1",
-  "location" : "SR 3",
-  "time" : "Montag 12:15 - 13:45",
-  "label": "Gruppe 1",
-  "capacity": 15
+        "id" : "Gruppe_1",
+        "location" : "SR 3",
+        "time" : "Montag 12:15 - 13:45",
+        "label": "Gruppe 1",
+        "capacity": 15
     },
     {
-  "id" : "Gruppe_2",
-  "location" : "SR 2",
-  "time" : "Montag 12:15 - 13:45",
-  "label": "Gruppe 2",
-  "capacity": 15
+        "id" : "Gruppe_2",
+        "location" : "SR 2",
+        "time" : "Montag 12:15 - 13:45",
+        "label": "Gruppe 2",
+        "capacity": 15
     },
     {
-  "id" : "Gruppe_3",
-  "location" : "SR 1",
-  "time" : "Montag 14:15 - 15:45",
-  "label": "Gruppe 3",
-  "capacity": 15
+        "id" : "Gruppe_3",
+        "location" : "SR 1",
+        "time" : "Montag 14:15 - 15:45",
+        "label": "Gruppe 3",
+        "capacity": 15
     },
     {
-  "id" : "Gruppe_4",
-  "location" : "HS 1",
-  "time" : "Montag 10:15 - 11:45",
-  "label": "Gruppe 4",
-  "capacity": 15
+        "id" : "Gruppe_4",
+        "location" : "HS 1",
+        "time" : "Montag 10:15 - 11:45",
+        "label": "Gruppe 4",
+        "capacity": 15
     }
 ]
 ```
@@ -115,7 +115,7 @@ Die Beispielkonfiguration enthält 5 Gruppen:
 
 Hinter dem Gruppenlabel können zusätzliche Informationen angezeigt werden. Dies kann mit `groupLabels` konfiguriert werden:
 
-```js
+```json
 "groupLabels" : ["location", "time"]
 ```
 
@@ -127,7 +127,7 @@ Diese Konfiguration generiert zum Beispiel für Gruppe 1 die folgende Gruppenbez
 
 Bei der Anmeldung zu den Gruppen müssen Studenten ihre Präferenzen angeben. Mögliche Präferenzen werden als Liste im `choices` Eintrag festgelegt. Eine Präferenzdefinition besteht aus zwei Teilen:
 
-```js
+```json
 {
     "label" : "unmöglich",
     "value" : 0
@@ -141,24 +141,24 @@ Der Wert 0 bedeutet, dass eine Teilnahme nicht möglich ist. Höhere Werte bedeu
 
 Die Beispielkonfiguration enthält 4 mögliche Präferenzen:
 
-```js
+```json
 "choices" :
 [
     {
-  "label" : "unmöglich",
-  "value" : 0
+        "label" : "unmöglich",
+        "value" : 0
     },
     {
-  "label" : "passt notfalls",
-  "value" : 1
+        "label" : "passt notfalls",
+        "value" : 1
     },
     {
-  "label" : "passt",
-  "value" : 2
+        "label" : "passt",
+        "value" : 2
     },
     {
-  "label" : "passt sehr gut",
-  "value" : 3
+        "label" : "passt sehr gut",
+        "value" : 3
     }
 ]
 ```
@@ -169,7 +169,7 @@ Es ist möglich, Einschränkungen für die Gruppenanmeldungen festzulegen. Dies 
 
 ### Mindestanzahl an ausgewählten Gruppen<a id="sec-3-4-1"></a>
 
-```js
+```json
 {
     "type" : "atLeast",
     "amount" : 2
@@ -180,7 +180,7 @@ Es ist möglich, Einschränkungen für die Gruppenanmeldungen festzulegen. Dies 
 
 ### Festlegen von Gruppen, von denen mindestens eine ausgewählt werden muss<a id="sec-3-4-2"></a>
 
-```js
+```json
 {
     "type": "atLeastOne",
     "of" : ["Gruppe_1", "Gruppe_4"]
@@ -195,12 +195,12 @@ In der Beispielkonfiguration werden beide Bedingungen genutzt:
 "groupConditions" :
 [
     {
-  "type" : "atLeast",
-  "amount" : 2
+        "type" : "atLeast",
+        "amount" : 2
     },
     {
-  "type": "atLeastOne",
-  "of" : ["Gruppe_1", "Gruppe_4"]
+        "type": "atLeastOne",
+        "of" : ["Gruppe_1", "Gruppe_4"]
     }
 ]
 ```
@@ -209,7 +209,7 @@ In der Beispielkonfiguration werden beide Bedingungen genutzt:
 
 Persönliche Daten, die der Student angeben muss, werden als Liste im `studentData` Feld festgelegt. Ein Eintrag in dieser Liste hat folgende Form:
 
-```js
+```json
 { "name": "Vorname", "type": "text" }
 ```
 
@@ -218,7 +218,7 @@ Persönliche Daten, die der Student angeben muss, werden als Liste im `studentDa
 
 Die Beispielkonfiguration legt folgende Daten fest:
 
-```js
+```json
 "studentData" :
 [
     { "name": "Vorname", "type": "text" },
@@ -234,7 +234,7 @@ Die Beispielkonfiguration legt folgende Daten fest:
 
 Eines dieser Eingabedaten muss als eindeutige Identifikation des Studenten in der Datenbank verwendet werden. Dies geschieht im `studentID` Feld der JSON Datei. In unserer Beispielkonfiguration benutzen wir die *Matrikelnummer* als ID:
 
-```js
+```json
 "studentId" : "Matrikelnummer"
 ```
 
@@ -248,7 +248,7 @@ Die gradle Komponente kann genutzt werden, um für die einzelnen Übungsgruppen 
 
 Die Beispielkonfiguration legt folgende Einstellungen fest:
 
-```js
+```json
 "exerciseSheets" : {
     "label" : "Blatt",
     "exerciseSheetAmount" : 10,
@@ -261,7 +261,7 @@ Die Beispielkonfiguration legt folgende Einstellungen fest:
 Ein Ausschnitt der erzeugten Tabelle sieht dann wie folgt aus:
 
 | Vorname | Nachname   | Matrikelnummer | Blatt 1 | Blatt 2 |
-|---------|------------|----------------|---------|---------|
+|------- |---------- |-------------- |------- |------- |
 | Max     | Mustermann | 123456         | 0       | 0       |
 
 ## Konfiguration für Notenliste<a id="sec-3-7"></a>
@@ -273,7 +273,7 @@ Ein Ausschnitt der erzeugten Tabelle sieht dann wie folgt aus:
 
 Die Beispielkonfiguration
 
-```js
+```json
 "gradeSheet" : {
     "studentData" : [
         "Vorname", "Nachname", "Matrikelnummer", "Geburtsdatum"
@@ -287,7 +287,7 @@ Die Beispielkonfiguration
 würde eine Tabelle im folgenden Format erzeugen:
 
 | Vorname | Nachname   | Matrikelnummer | Geburtsdatum | Note | Bezeichnung |
-|---------|------------|----------------|--------------|------|-------------|
+|------- |---------- |-------------- |------------ |---- |----------- |
 | Max     | Mustermann | 123456         | 01.01.1998   | 1.0  | sehr gut    |
 
 # Einrichtung der Webseite<a id="sec-4"></a>
