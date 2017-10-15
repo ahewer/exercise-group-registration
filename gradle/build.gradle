@@ -507,7 +507,6 @@ task createSheetCSV() {
     def outputDir = file("$buildDir/pointLists")
     def unassignedFile = file("$buildDir/unassigned.json")
 
-
     inputs.file inputFile
     outputs.dir outputDir
 
@@ -574,6 +573,8 @@ task createGradeCSV() {
     outputs.file outputFile
 
     doLast{
+
+        outputFile.parentFile.mkdirs()
 
 	      if(unassignedFile.exists()) {
 	          throw new GradleException("Studenten in $unassignedFile konnten nicht zugeordnet werden.")
