@@ -126,7 +126,9 @@ task findGroupAssignments() {
 
     def outputFile = file("$buildDir/groupAssignments.json")
 
-    inputs.file inputFile
+    def configurationFile = file("resources/configuration.json")
+
+    inputs.files inputFile, configurationFile
 
     outputs.file outputFile
 
