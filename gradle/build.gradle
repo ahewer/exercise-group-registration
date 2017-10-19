@@ -202,6 +202,8 @@ task findGroupAssignments() {
 
             constraints.add(new LinearConstraint((double[]) vector.toArray(), Relationship.LEQ, groupDescriptions[i].capacity))
 
+            constraints.add(new LinearConstraint((double[]) vector.toArray(), Relationship.GEQ, groupDescriptions[i].min))
+
         }
 
         // find group assignment

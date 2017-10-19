@@ -6,28 +6,32 @@
             "location" : "SR 3",
             "time" : "Montag 12:15 - 13:45",
             "label": "Gruppe 1",
-            "capacity": 15
+            "capacity": 15,
+            "min" : 0
         },
         {
             "id" : "Gruppe_2",
             "location" : "SR 2",
             "time" : "Montag 12:15 - 13:45",
             "label": "Gruppe 2",
-            "capacity": 15
+            "capacity": 15,
+            "min" : 0
         },
         {
             "id" : "Gruppe_3",
             "location" : "SR 1",
             "time" : "Montag 14:15 - 15:45",
             "label": "Gruppe 3",
-            "capacity": 15
+            "capacity": 15,
+            "min" : 0
         },
         {
             "id" : "Gruppe_4",
             "location" : "HS 1",
             "time" : "Montag 10:15 - 11:45",
             "label": "Gruppe 4",
-            "capacity": 15
+            "capacity": 15,
+            "min" : 0
         }
     ],
 
