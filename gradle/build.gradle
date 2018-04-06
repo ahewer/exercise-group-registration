@@ -118,6 +118,40 @@ task anonymize() {
     }
 }
 
+task generateDynamicGroups() {
+    def inputFile = file("$buildDir/registrations.json")
+
+    def outputFile = file("resources/configuration_dyn.json")
+
+    def configurationFile = file("resources/configuration.json")
+
+    inputs.files inputFile, configurationFile
+
+    outputs.file outputFile
+
+    dependsOn extractFromSQL
+
+    doLast{
+        def slurper = new groovy.json.JsonSlurper()
+
+        def groupDescriptions = configMap["groups"]
+        def registrations = slurper.parse(inputFile)
+
+        def groupExpanded = []
+
+        groupDescriptions.each { if(it.capacity.getClass() != ArrayList) { it.capacity = [it.capacity] } } 
+        println groupDescriptions[3].capacity[0]
+        groupDescriptions.each { i-> def subGroupAmount = i.capacity.size()
+                                (0..subGroupAmount - 1 ).each { j-> groupExpanded.add(i)
+                                    groupExpanded.last().id = "Group_${groupExpanded.size() - 1}"
+println j
+                                    groupExpanded.last().capacity = [i.capacity[0]]
+                                    //groupExpanded.last().location = i.location[j] 
+}
+                               } 
+println groupExpanded
+    }
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 task findGroupAssignments() {
@@ -194,13 +228,20 @@ task findGroupAssignments() {
         }
 
         // create <= constraints => limit amount of registrants per group
+        def capacity = []
         (0..groupAmount - 1).each{ i ->
 
             def vector = (0..objective.size() - 1).collect{ j ->
                 (j % groupAmount == i)? 1 : 0
             }
-
-            constraints.add(new LinearConstraint((double[]) vector.toArray(), Relationship.LEQ, groupDescriptions[i].capacity))
+        // convert capacity to ArrayList if necessary
+            if(groupDescriptions[i].capacity.getClass() == ArrayList) {
+                capacity = groupDescriptions[i].capacity
+            } 
+            else {
+                capacity = [groupDescriptions[i].capacity]
+            }
+            constraints.add(new LinearConstraint((double[]) vector.toArray(), Relationship.LEQ, capacity.sum()))
 
         }
 
