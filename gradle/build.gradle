@@ -38,16 +38,58 @@ import groovy.sql.*
 ext{
 
     def slurper = new groovy.json.JsonSlurper()
-    configMap = slurper.parse(file("resources/configuration.json"))
+    configMap = slurper.parse(file("resources/configuration_dyn.json"))
+    listifyConf = { i->
+        i.each { if(it.capacity.getClass() != ArrayList) { it.capacity = [it.capacity] } } 
+        i.each { if(it.location.getClass() != ArrayList) { it.location = [it.location] } } 
+    }  
 
 }
 
+///////////////////////////////////////////////////////////////////////////////
+task generateDynamicGroups() {
+
+    def outputFile = file("resources/configuration_dyn.json")
+
+    def configurationFile = file("resources/configuration.json")
+
+    inputs.files configurationFile
+
+    outputs.file outputFile
+
+    doLast{
+        outputFile.parentFile.mkdirs()
+        def slurper = new groovy.json.JsonSlurper()
+
+        def groupDescriptions = listifyConf(slurper.parse(file("resources/configuration.json"))["groups"])
+
+        def groupExpanded = []
+
+        groupDescriptions.each { i-> def subGroupAmount = i.capacity.size()
+                                (0..subGroupAmount - 1 ).each { j-> 
+            if(i.capacity[j] != 0 )
+                groupExpanded.add(["id" : "group_${groupExpanded.size() + 1}", "location" : i.location[j], "time" : i.time, "label" : "Gruppe ${groupExpanded.size() + 1}", "capacity" : i.capacity[j]])
+        }
+                               } 
+        def dynConfiguration = slurper.parse(file("resources/configuration.json"))
+        dynConfiguration.groups = groupExpanded
+        def builder = new groovy.json.JsonBuilder(dynConfiguration)
+
+        outputFile.withWriter{
+
+            it << builder.toPrettyString()
+        }
+    }
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 task extractFromSQL{
 
     def inputFile = file("resources/database.db")
     def outputFile = file("$buildDir/registrations.json")
+    def configurationFile = file("resources/configuration.json")
+
+    dependsOn generateDynamicGroups
 
     doLast{
 
@@ -56,12 +98,19 @@ task extractFromSQL{
         def db = Sql.newInstance("jdbc:sqlite:$inputFile", "org.sqlite.JDBC");
 
         def slurper = new groovy.json.JsonSlurper()
+        def groupDescriptions = listifyConf(slurper.parse(file("resources/configuration.json"))["groups"])
+        
+        groupDescriptions.each { it.capacity.retainAll { it > 0} }
+        def expansion = groupDescriptions.collect { it.capacity.size() }
 
         def entries = []
 
         db.eachRow("select * from Registrations"){
             def json = it.data
             def entry = slurper.parseText(json)
+            def choices = []
+            expansion.eachWithIndex {i, index ->  choices.add([entry.groupChoices[index]]*i)}
+            entry.groupChoices = choices.flatten()
             entries.add(entry)
         }
 
@@ -118,40 +167,6 @@ task anonymize() {
     }
 }
 
-task generateDynamicGroups() {
-    def inputFile = file("$buildDir/registrations.json")
-
-    def outputFile = file("resources/configuration_dyn.json")
-
-    def configurationFile = file("resources/configuration.json")
-
-    inputs.files inputFile, configurationFile
-
-    outputs.file outputFile
-
-    dependsOn extractFromSQL
-
-    doLast{
-        def slurper = new groovy.json.JsonSlurper()
-
-        def groupDescriptions = configMap["groups"]
-        def registrations = slurper.parse(inputFile)
-
-        def groupExpanded = []
-
-        groupDescriptions.each { if(it.capacity.getClass() != ArrayList) { it.capacity = [it.capacity] } } 
-        println groupDescriptions[3].capacity[0]
-        groupDescriptions.each { i-> def subGroupAmount = i.capacity.size()
-                                (0..subGroupAmount - 1 ).each { j-> groupExpanded.add(i)
-                                    groupExpanded.last().id = "Group_${groupExpanded.size() - 1}"
-println j
-                                    groupExpanded.last().capacity = [i.capacity[0]]
-                                    //groupExpanded.last().location = i.location[j] 
-}
-                               } 
-println groupExpanded
-    }
-}
 ///////////////////////////////////////////////////////////////////////////////
 
 task findGroupAssignments() {
@@ -160,7 +175,7 @@ task findGroupAssignments() {
 
     def outputFile = file("$buildDir/groupAssignments.json")
 
-    def configurationFile = file("resources/configuration.json")
+    def configurationFile = file("resources/configuration_dyn.json")
 
     inputs.files inputFile, configurationFile
 
