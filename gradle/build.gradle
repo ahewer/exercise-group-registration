@@ -38,16 +38,58 @@ import groovy.sql.*
 ext{
 
     def slurper = new groovy.json.JsonSlurper()
-    configMap = slurper.parse(file("resources/configuration.json"))
+    configMap = slurper.parse(file("resources/configuration_dyn.json"))
+    listifyConf = { i->
+        i.each { if(it.capacity.getClass() != ArrayList) { it.capacity = [it.capacity] } } 
+        i.each { if(it.location.getClass() != ArrayList) { it.location = [it.location] } } 
+    }  
 
 }
 
+///////////////////////////////////////////////////////////////////////////////
+task generateDynamicGroups() {
+
+    def outputFile = file("resources/configuration_dyn.json")
+
+    def configurationFile = file("resources/configuration.json")
+
+    inputs.files configurationFile
+
+    outputs.file outputFile
+
+    doLast{
+        outputFile.parentFile.mkdirs()
+        def slurper = new groovy.json.JsonSlurper()
+
+        def groupDescriptions = listifyConf(slurper.parse(file("resources/configuration.json"))["groups"])
+
+        def groupExpanded = []
+
+        groupDescriptions.each { i-> def subGroupAmount = i.capacity.size()
+                                (0..subGroupAmount - 1 ).each { j-> 
+            if(i.capacity[j] != 0 )
+                groupExpanded.add(["id" : "group_${groupExpanded.size() + 1}", "location" : i.location[j], "time" : i.time, "label" : "Gruppe ${groupExpanded.size() + 1}", "capacity" : i.capacity[j]])
+        }
+                               } 
+        def dynConfiguration = slurper.parse(file("resources/configuration.json"))
+        dynConfiguration.groups = groupExpanded
+        def builder = new groovy.json.JsonBuilder(dynConfiguration)
+
+        outputFile.withWriter{
+
+            it << builder.toPrettyString()
+        }
+    }
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 task extractFromSQL{
 
     def inputFile = file("resources/database.db")
     def outputFile = file("$buildDir/registrations.json")
+    def configurationFile = file("resources/configuration.json")
+
+    dependsOn generateDynamicGroups
 
     doLast{
 
@@ -56,12 +98,19 @@ task extractFromSQL{
         def db = Sql.newInstance("jdbc:sqlite:$inputFile", "org.sqlite.JDBC");
 
         def slurper = new groovy.json.JsonSlurper()
+        def groupDescriptions = listifyConf(slurper.parse(file("resources/configuration.json"))["groups"])
+        
+        groupDescriptions.each { it.capacity.retainAll { it > 0} }
+        def expansion = groupDescriptions.collect { it.capacity.size() }
 
         def entries = []
 
         db.eachRow("select * from Registrations"){
             def json = it.data
             def entry = slurper.parseText(json)
+            def choices = []
+            expansion.eachWithIndex {i, index ->  choices.add([entry.groupChoices[index]]*i)}
+            entry.groupChoices = choices.flatten()
             entries.add(entry)
         }
 
@@ -126,7 +175,7 @@ task findGroupAssignments() {
 
     def outputFile = file("$buildDir/groupAssignments.json")
 
-    def configurationFile = file("resources/configuration.json")
+    def configurationFile = file("resources/configuration_dyn.json")
 
     inputs.files inputFile, configurationFile
 
@@ -194,13 +243,20 @@ task findGroupAssignments() {
         }
 
         // create <= constraints => limit amount of registrants per group
+        def capacity = []
         (0..groupAmount - 1).each{ i ->
 
             def vector = (0..objective.size() - 1).collect{ j ->
                 (j % groupAmount == i)? 1 : 0
             }
-
-            constraints.add(new LinearConstraint((double[]) vector.toArray(), Relationship.LEQ, groupDescriptions[i].capacity))
+        // convert capacity to ArrayList if necessary
+            if(groupDescriptions[i].capacity.getClass() == ArrayList) {
+                capacity = groupDescriptions[i].capacity
+            } 
+            else {
+                capacity = [groupDescriptions[i].capacity]
+            }
+            constraints.add(new LinearConstraint((double[]) vector.toArray(), Relationship.LEQ, capacity.sum()))
 
         }
 
